@@ -8,14 +8,15 @@ Usage
 -----
 
 <pre>
-Usage: <strong>pvenv</strong> &lt;command&gt; [&lt;arg&gt;...]
+Usage: <strong>pvenv</strong> &lt;command&gt; [arg...]
 
 Commands:
-  <strong>use</strong> &lt;python&gt;  Creates venv for the current directory using the provived python executable
-                (if venv doesn't exist) and activates it. If no python executable is provided,
-                defaults to <strong>python3</strong>.
-  <strong>ls</strong>            Lists path of venv associated with current directory, if venv exists.
-  <strong>rm</strong>            Removes venv associated with current directory.
+  <strong>use</strong> [python] [arg...]  Creates venv for the current directory using the provided python executa-
+                         ble (if venv doesn't exist) and activates it. If no python executable is
+                         provided, defaults to <strong>python3</strong>. Any additional arguments given are passed
+                         to the venv script when creating the venv. See <strong>python3 -m venv --help</strong>
+  <strong>ls</strong>                     Lists path of venv associated with current directory, if venv exists.
+  <strong>rm</strong>                     Removes venv associated with current directory.
 </pre>
 
 Settings
