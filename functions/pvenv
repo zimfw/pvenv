@@ -1,0 +1,55 @@
+local -r pusage="Usage: %B${0}%b <command> [<arg>...]
+
+Commands:
+  %Buse%b <python>  Creates venv for the current directory using the provived python executable
+                (if venv doesn't exist) and activates it. If no python executable is provided,
+                defaults to %Bpython3%b.
+  %Bls%b            Lists path of venv associated with current directory, if venv exists.
+  %Brm%b            Removes venv associated with current directory."
+
+if (( # < 1 )); then
+  print -u2 -PR ${pusage}
+  return 2
+fi
+
+: ${PVENV_HOME=${ZDOTDIR:-${HOME}}/.venvs}
+local -r phash=$(print -R ${PWD:h} | sha1sum | command xxd -r -p | \
+    command base64 | LC_CTYPE=C command tr -dc '[:alnum:]' | command head -c 8)
+local -r pvenv_dir=${PVENV_HOME}/${PWD:t}-${phash}
+
+case ${1} in
+  use)
+    if [[ -e ${pvenv_dir} ]]; then
+      print -PR "%BActivating venv under ${pvenv_dir}%b"
+      source ${pvenv_dir}/bin/activate
+    else
+      local -r ppython=${2:-python3}
+      print -PR "%BCreating venv under ${pvenv_dir} using ${ppython} and activating it%b"
+      ${ppython} -m venv venv ${pvenv_dir} && source ${pvenv_dir}/bin/activate && \
+          print -P "%BUpgrading pip%b" && pip install --upgrade pip && \
+          print -P "%BInstalling setuptools and wheel%b" && pip install setuptools wheel && \
+          if [[ -f requirements.txt ]]; then
+            print -P "%BInstalling from requirements.txt%b"
+            pip install -r requirements.txt
+          fi
+    fi
+    ;;
+  ls)
+    if [[ -e ${pvenv_dir} ]]; then
+      print -PR "%B${pvenv_dir}%b"
+    fi
+    ;;
+  rm)
+    if [[ -e ${pvenv_dir} ]]; then
+      print -PR "%BRemoving venv under ${pvenv_dir}%b"
+      command rm -rf ${pvenv_dir}
+    else
+      print -u2 -PR "%F{red}${0}: No venv found for current directory.%f"
+      return 1
+    fi
+    ;;
+  *)
+    print -u2 -PR "%F{red}${0}: Unknown action ${1}%f"$'\n\n'${pusage}
+    return 2
+    ;;
+esac
