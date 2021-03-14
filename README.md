@@ -29,8 +29,21 @@ can be customized with:
 Installation
 ------------
 
+Only the installation with the [Zim] framework is officially supported.
+For any other Zsh framework, the installation instructions below are unofficial
+and not directly supported by the maintainers of this project.
+
 ### [Zim]
 Add `zmodule pvenv` to your `.zimrc` and run `zimfw install`.
+
+### ohmyzsh
+Clone this repository into your custom plugins subdirectory:
+
+    git clone https://github.com/zimfw/pvenv.git ~/.oh-my-zsh/custom/plugins/pvenv
+
+And add it to the plugins array in your `.zshrc`:
+
+    plugins+=(pvenv)
 
 [pipenv]: https://pipenv.pypa.io/
 [poetry]: https://python-poetry.org/
