@@ -22,8 +22,8 @@ Commands:
 Settings
 --------
 
-By default, all venvs are created under `${ZDOTDIR:-${HOME}}/.venvs`. This path
-can be customized with:
+By default, all venvs are created under `${HOME}/.venvs`. This path can be
+customized with:
 
     PVENV_HOME=/path/to/venvs
 

@@ -14,7 +14,7 @@ if (( # < 1 )); then
   return 2
 fi
 
-: ${PVENV_HOME=${ZDOTDIR:-${HOME}}/.venvs}
+: ${PVENV_HOME=${HOME}/.venvs}
 local -r phash=$(print -R ${PWD:h} | sha1sum | command xxd -r -p | \
     command base64 | LC_CTYPE=C command tr -dc '[:alnum:]' | command head -c 8)
 local -r pvenv_dir=${PVENV_HOME}/${PWD:t}-${phash}
