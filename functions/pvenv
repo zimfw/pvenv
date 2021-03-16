@@ -15,10 +15,10 @@ if (( # < 1 )); then
 fi
 
 : ${PVENV_HOME=${HOME}/.venvs}
-local -r phash=$(print -Rn ${PWD} | sha1sum | command xxd -r -p | \
+local -r phash=$(print -Rn ${PWD:A} | sha1sum | command xxd -r -p | \
     command base64 | LC_CTYPE=C command tr '/+' '_-' | command head -c 8)
 local -r psub=$'[ &$`!*@"\\\r\n\t]'
-local -r pvenv_dir=${PVENV_HOME}/${${${PWD:t}[0,42]}//${~psub}/_}-${phash}
+local -r pvenv_dir=${PVENV_HOME}/${${${PWD:A:t}[0,42]}//${~psub}/_}-${phash}
 
 case ${1} in
   use)
