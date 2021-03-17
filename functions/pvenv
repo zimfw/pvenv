@@ -30,16 +30,19 @@ case ${1} in
       local -r ppython=${1:-python3}
       shift
       print -PR "%BCreating venv under ${pvenv_dir}${@:+ }${@} using ${ppython} and activating it%b"
+      local pfile
       ${ppython} -m venv venv ${pvenv_dir} "${@}" && source ${pvenv_dir}/bin/activate && \
           print -P "%BUpgrading pip%b" && python -m pip install --upgrade pip && \
-          print -P "%BInstalling setuptools and wheel%b" && python -m pip install setuptools wheel && \
-          if [[ -f setup.py ]]; then
-            print -P "%BInstalling from setup.py%b"
-            python -m pip install -e .
-          elif [[ -f requirements.txt ]]; then
-            print -P "%BInstalling from requirements.txt%b"
-            python -m pip install -r requirements.txt
-          fi
+          for pfile in requirements-dev.txt requirements.txt setup.py; do
+            if [[ -f ${pfile} ]]; then
+              print -P "%BInstalling from ${pfile}%b"
+              if [[ ${pfile} == setup.py ]]; then
+                python -m pip install -e . || return 1
+              else
+                python -m pip install -r ${pfile} || return 1
+              fi
+            fi
+          done
     fi
     ;;
   ls)
