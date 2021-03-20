@@ -15,10 +15,15 @@ if (( # < 1 )); then
 fi
 
 : ${PVENV_HOME=${HOME}/.venvs}
-local -r phash=$(print -Rn ${PWD:A} | sha1sum | command xxd -r -p | \
-    command base64 | LC_CTYPE=C command tr '/+' '_-' | command head -c 8)
-local -r psub=$'[ &$`!*@"\\\r\n\t]'
-local -r pvenv_dir=${PVENV_HOME}/${${${PWD:A:t}[0,42]}//${~psub}/_}-${phash}
+local -r pvenv_name=$(python3 -c 'import base64
+import hashlib
+import os
+import re
+d=os.getcwd()
+n=re.sub(r"[ &$`!*@\"\\\r\n\t]", "_", os.path.basename(d)[:42])
+h=base64.urlsafe_b64encode(hashlib.sha1(d.encode()).digest()).decode()[:8]
+print("{}-{}".format(n, h))')
+local -r pvenv_dir=${PVENV_HOME}/${pvenv_name}
 
 case ${1} in
   use)
