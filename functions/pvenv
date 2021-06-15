@@ -5,7 +5,7 @@ Commands:
   %Buse%b [python] [arg...]  Creates venv for the current directory using the provided python executa-
                          ble (if venv doesn't exist) and activates it. If no python executable is
                          provided, defaults to %Bpython3%b. Any additional arguments given are passed
-                         to the venv creation script. See %Bpython3 -m venv --help%b
+                         to the venv script when creating the venv. See %Bpython3 -m venv --help%b
   %Bls%b                     Lists path of venv associated with current directory, if venv exists.
   %Brm%b                     Removes venv associated with current directory."
 
@@ -28,22 +28,43 @@ local -r pvenv_dir=${PVENV_HOME}/${pvenv_name}
 case ${1} in
   use)
     if [[ -e ${pvenv_dir} ]]; then
-      print -R "Activating venv under ${pvenv_dir}"
+      print -PR "%BActivating venv under ${pvenv_dir}%b"
       source ${pvenv_dir}/bin/activate
     else
       shift
-      local ppython
-      if (( # )); then
-        ppython=${1}
-        shift
-      else
-        ppython=python3
-      fi
+      local -r ppython=${1:-python3}
+      shift
       print -PR "%BCreating venv under ${pvenv_dir}${@:+ }${@} using ${ppython} and activating it%b"
       local pfile
       ${ppython} -m venv venv ${pvenv_dir} "${@}" && source ${pvenv_dir}/bin/activate && \
           print -P "%BUpgrading pip%b" && python -m pip install --upgrade pip && \
-          for pfile in *requirements*.txt setup.py; do
+          for pfile in requirements-dev.txt requirements.txt setup.py; do
+            if [[ -f ${pfile} ]]; then
+              print -P "%BInstalling from ${pfile}%b"
+              if [[ ${pfile} == setup.py ]]; then
+                python -m pip install -e . || return 1
+              else
+                python -m pip install -r ${pfile} || return 1
+              fi
+            fi
+          done
+    fi
+    ;;
+  use-named)
+    shift
+    local -r pname=${1}
+    local -r ppvenv_dir=${PVENV_HOME}/${pname}
+    if [[ -e ${ppvenv_dir} ]]; then
+      print -PR "%BActivating venv under ${ppvenv_dir}%b"
+      source ${ppvenv_dir}/bin/activate
+    else
+      shift
+      local -r ppython=${1:-python3}
+      print -PR "%BCreating venv under ${ppvenv_dir}${@:+ }${@} using ${ppython} and activating it%b"
+      local pfile
+      ${ppython} -m venv venv ${ppvenv_dir} "${@}" && source ${ppvenv_dir}/bin/activate && \
+          print -P "%BUpgrading pip%b" && python -m pip install --upgrade pip && \
+          for pfile in requirements-dev.txt requirements.txt setup.py; do
             if [[ -f ${pfile} ]]; then
               print -P "%BInstalling from ${pfile}%b"
               if [[ ${pfile} == setup.py ]]; then
@@ -57,12 +78,12 @@ case ${1} in
     ;;
   ls)
     if [[ -e ${pvenv_dir} ]]; then
-      print -R ${pvenv_dir}
+      print -PR "%B${pvenv_dir}%b"
     fi
     ;;
   rm)
     if [[ -e ${pvenv_dir} ]]; then
-      print -R "Removing venv under ${pvenv_dir}"
+      print -PR "%BRemoving venv under ${pvenv_dir}%b"
       command rm -rf ${pvenv_dir}
     else
       print -u2 -PR "%F{red}${0}: No venv found for current directory.%f"
