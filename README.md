@@ -2,21 +2,24 @@ pvenv
 =====
 
 Manages all python venvs in one place. Pretty much like [pipenv] or [poetry],
-but using just pip and it's requirements.txt file.
+but using just venv and pip.
 
 Usage
 -----
 
 <pre>
-Usage: <strong>pvenv</strong> &lt;command&gt; [arg...]
+Usage: <strong>pvenv</strong> [<strong>-n</strong>|<strong>--name</strong> &lt;venv_name&gt;] &lt;command&gt; [arg...]
+
+  <strong>-n</strong>|<strong>--name</strong> &lt;venv_name&gt;  Set a custom venv name. Default: unique name based on the name of the
+                         current directory.
 
 Commands:
-  <strong>use</strong> [python] [arg...]  Creates venv for the current directory using the provided python executa-
-                         ble (if venv doesn't exist) and activates it. If no python executable is
-                         provided, defaults to <strong>python3</strong>. Any additional arguments given are passed
-                         to the venv creation script. See <strong>python3 -m venv --help</strong>
-  <strong>ls</strong>                     Lists path of venv associated with current directory, if venv exists.
-  <strong>rm</strong>                     Removes venv associated with current directory.
+  <strong>use</strong> [python] [arg...]  Create venv using the provided python executable (if venv doesn't exist)
+                         and activate it. If no python executable is provided, defaults to
+                         <strong>python3</strong>. Any additional arguments given are passed to the venv creation
+                         script. See <strong>python3 -m venv --help</strong>
+  <strong>ls</strong>                     List path of venv, if venv exists.
+  <strong>rm</strong>                     Remove venv.
 </pre>
 
 Settings

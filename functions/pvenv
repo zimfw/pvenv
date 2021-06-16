@@ -1,13 +1,16 @@
 # vim:et sts=2 sw=2 ft=zsh
-local -r pusage="Usage: %B${0}%b <command> [arg...]
+local -r pusage="Usage: %B${0}%b [%B-n%b|%B--name%b <venv_name>] <command> [arg...]
+
+  %B-n%b|%B--name%b <venv_name>  Set a custom venv name. Default: unique name based on the name of the
+                         current directory.
 
 Commands:
-  %Buse%b [python] [arg...]  Creates venv for the current directory using the provided python executa-
-                         ble (if venv doesn't exist) and activates it. If no python executable is
-                         provided, defaults to %Bpython3%b. Any additional arguments given are passed
-                         to the venv creation script. See %Bpython3 -m venv --help%b
-  %Bls%b                     Lists path of venv associated with current directory, if venv exists.
-  %Brm%b                     Removes venv associated with current directory."
+  %Buse%b [python] [arg...]  Create venv using the provided python executable (if venv doesn't exist)
+                         and activate it. If no python executable is provided, defaults to
+                         %Bpython3%b. Any additional arguments given are passed to the venv creation
+                         script. See %Bpython3 -m venv --help%b
+  %Bls%b                     List path of venv, if venv exists.
+  %Brm%b                     Remove venv."
 
 if (( # < 1 )); then
   print -u2 -PR ${pusage}
@@ -15,7 +18,17 @@ if (( # < 1 )); then
 fi
 
 : ${PVENV_HOME=${HOME}/.venvs}
-local -r pvenv_name=$(python3 -c 'import base64
+
+if [[ ${1} == (-n|--name) ]]; then
+  if (( # < 2 )); then
+    print -u2 -PR "%F{red}${0}: Missing argument for option ${1}%f"$'\n\n'${pusage}
+    return 2
+  fi
+  shift
+  local -r pvenv_name=${${1%%/##}##/##}
+  shift
+else
+  local -r pvenv_name=$(python3 -c 'import base64
 import hashlib
 import os
 import re
@@ -23,6 +36,8 @@ d=os.getcwd()
 n=re.sub(r"[ &$`!*@\"\\\r\n\t]", "_", os.path.basename(d)[:42])
 h=base64.urlsafe_b64encode(hashlib.sha1(d.encode()).digest()).decode()[:8]
 print("{}-{}".format(n, h))')
+fi
+
 local -r pvenv_dir=${PVENV_HOME}/${pvenv_name}
 
 case ${1} in
@@ -43,14 +58,12 @@ case ${1} in
       local pfile
       ${ppython} -m venv venv ${pvenv_dir} "${@}" && source ${pvenv_dir}/bin/activate && \
           print -P "%BUpgrading pip%b" && python -m pip install --upgrade pip && \
-          for pfile in *requirements*.txt setup.py; do
-            if [[ -f ${pfile} ]]; then
-              print -P "%BInstalling from ${pfile}%b"
-              if [[ ${pfile} == setup.py ]]; then
-                python -m pip install -e . || return 1
-              else
-                python -m pip install -r ${pfile} || return 1
-              fi
+          for pfile in (*requirements*.txt|setup.py)(N-.); do
+            print -P "%BInstalling from ${pfile}%b"
+            if [[ ${pfile} == setup.py ]]; then
+              python -m pip install -e . || return 1
+            else
+              python -m pip install -r ${pfile} || return 1
             fi
           done
     fi
@@ -70,7 +83,7 @@ case ${1} in
     fi
     ;;
   *)
-    print -u2 -PR "%F{red}${0}: Unknown action ${1}%f"$'\n\n'${pusage}
+    print -u2 -PR "%F{red}${0}: Unknown command ${1}%f"$'\n\n'${pusage}
     return 2
     ;;
 esac
