@@ -17,7 +17,7 @@ if (( # < 1 )); then
   return 2
 fi
 
-: ${PVENV_HOME=${HOME}/.venvs}
+if (( ! ${+PVENV_HOME} )) typeset -g PVENV_HOME=${HOME/.venvs}
 
 if [[ ${1} == (-n|--name) ]]; then
   if (( # < 2 )); then
