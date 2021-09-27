@@ -17,11 +17,11 @@ if (( # < 1 )); then
   return 2
 fi
 
-if (( ! ${+PVENV_HOME} )) typeset -g PVENV_HOME=${HOME/.venvs}
+if (( ! ${+PVENV_HOME} )) typeset -g PVENV_HOME=${HOME}/.venvs
 
 if [[ ${1} == (-n|--name) ]]; then
   if (( # < 2 )); then
-    print -u2 -PR "%F{red}${0}: Missing argument for option ${1}%f"$'\n\n'${pusage}
+    print -u2 -PRl "%F{red}${0}: Missing argument for option ${1}%f" '' ${pusage}
     return 2
   fi
   shift
@@ -47,7 +47,7 @@ case ${1} in
       source ${pvenv_dir}/bin/activate
     else
       shift
-      local ppython
+      local ppython pfile
       if (( # )); then
         ppython=${1}
         shift
@@ -55,9 +55,8 @@ case ${1} in
         ppython=python3
       fi
       print -PR "%BCreating venv under ${pvenv_dir}${@:+ }${@} using ${ppython} and activating it%b"
-      local pfile
       ${ppython} -m venv venv ${pvenv_dir} "${@}" && source ${pvenv_dir}/bin/activate && \
-          print -P "%BUpgrading pip%b" && python -m pip install --upgrade pip && \
+          print -P '%BUpgrading pip%b' && python -m pip install --upgrade pip && \
           for pfile in (*requirements*.txt|setup.py)(N-.); do
             print -P "%BInstalling from ${pfile}%b"
             if [[ ${pfile} == setup.py ]]; then
@@ -69,21 +68,19 @@ case ${1} in
     fi
     ;;
   ls)
-    if [[ -e ${pvenv_dir} ]]; then
-      print -R ${pvenv_dir}
-    fi
+    if [[ -e ${pvenv_dir} ]] print -R ${pvenv_dir}
     ;;
   rm)
     if [[ -e ${pvenv_dir} ]]; then
       print -R "Removing venv under ${pvenv_dir}"
       command rm -rf ${pvenv_dir}
     else
-      print -u2 -PR "%F{red}${0}: No venv found for current directory.%f"
+      print -u2 -PR "%F{red}${0}: ${pvenv_dir} not found%f"
       return 1
     fi
     ;;
   *)
-    print -u2 -PR "%F{red}${0}: Unknown command ${1}%f"$'\n\n'${pusage}
+    print -u2 -PRl "%F{red}${0}: Unknown command ${1}%f" '' ${pusage}
     return 2
     ;;
 esac
