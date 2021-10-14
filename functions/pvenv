@@ -44,7 +44,9 @@ case ${1} in
   use)
     if [[ -e ${pvenv_dir} ]]; then
       print -R "Activating venv under ${pvenv_dir}"
-      source ${pvenv_dir}/bin/activate
+      source ${pvenv_dir}/bin/activate && \
+          print -P '%BUpgrading core packaging tools%b' && \
+          python -m pip install --upgrade pip setuptools wheel
     else
       shift
       local ppython pfile
@@ -56,7 +58,8 @@ case ${1} in
       fi
       print -PR "%BCreating venv under ${pvenv_dir}${@:+ }${@} using ${ppython} and activating it%b"
       ${ppython} -m venv venv ${pvenv_dir} "${@}" && source ${pvenv_dir}/bin/activate && \
-          print -P '%BUpgrading pip%b' && python -m pip install --upgrade pip && \
+          print -P '%BUpgrading core packaging tools%b' && \
+          python -m pip install --upgrade pip setuptools wheel && \
           for pfile in (*requirements*.txt|setup.py)(N-.); do
             print -P "%BInstalling from ${pfile}%b"
             if [[ ${pfile} == setup.py ]]; then
