@@ -1,4 +1,6 @@
 # vim:et sts=2 sw=2 ft=zsh
+builtin emulate -L zsh
+
 local -r pusage="Usage: %B${0}%b [%B-n%b|%B--name%b <venv_name>] <command> [arg...]
 
   %B-n%b|%B--name%b <venv_name>  Set a custom venv name. Default: unique name based on the name of the
